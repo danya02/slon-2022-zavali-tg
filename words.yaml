@@ -1,0 +1,10 @@
+round1:
+  name: Round 1
+  words:
+    - text: "A"
+      definition: "Definition of A"
+    - text: "B"
+      definition: "Definition of B"
+    - text: "C"
+      definition: "Definition of C"
+      
