@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title required %}{% endblock %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+        {% block extraHead %}{% endblock %}
+    </head>
+    <body>
+        <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+        {% include "navbar.html" %}
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="my-4">{{ self.title() }}</h1>
+                </div>
+
+            </div>
+            <noscript>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="alert alert-danger">
+                            Эта страница использует JavaScript для работы. Пожалуйста, включите JavaScript в вашем браузере.
+                        </div>
+                    </div>
+                </div>
+            </noscript>
+
+            <div class="row">
+                <div class="col-md-12">
+                    {% block content required %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+        <script>
+
+            function processEvents(data){
+            }
+    
+            function doPoll(){
+                $.ajax({
+                    url: "{{ url_for('get_events') }}",
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        processAnnouncement(data);
+                    }
+                }).always(function(){
+                    setTimeout(doPoll, 1000);
+                });
+            }
+            doPoll();
+
+        </script>
+
+        {% block extraFooter %}{% endblock %}
+
+    </body>
+
+    <!-- Current session: {{session}} -->
+</html>

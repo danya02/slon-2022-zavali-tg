@@ -1,5 +1,7 @@
 import peewee as pw
 import yaml
+import random
+import string
 db = pw.SqliteDatabase('database.db')
 
 class MyModel(pw.Model):
@@ -23,19 +25,6 @@ class Admin(MyModel):
 
 @create_table
 class Team(MyModel):
-    telegram_id = pw.IntegerField(unique=True)
     name = pw.CharField(null=True)
-    state = pw.CharField(null=True)
-    memory = pw.TextField(null=True)
-
-def get_admin():
-    try:
-        return Admin.select().get()
-    except Admin.DoesNotExist:
-        return Admin.create(state=None, state_arg=None)
-
-def get_user_state(message):
-    try:
-        return Team.select().where(Team.telegram_id == message.from_user.id).get()
-    except Team.DoesNotExist:
-        return None
+    join_key = pw.CharField(default=lambda: ''.join([random.choice(string.ascii_uppercase) for _ in range(8)]))
+    memory = pw.TextField(default='{}')
