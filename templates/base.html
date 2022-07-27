@@ -29,6 +29,17 @@
             </noscript>
 
             <div class="row">
+                {% for message in get_flashed_messages() %}
+                <div class="col-md-12">
+                    <div class="alert alert-warning">
+                        {{message}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
                 <div class="col-md-12">
                     {% block content required %}
                     {% endblock %}
@@ -48,7 +59,7 @@
                     type: "GET",
                     dataType: "json",
                     success: function(data) {
-                        processAnnouncement(data);
+                        processEvents(data);
                     }
                 }).always(function(){
                     setTimeout(doPoll, 1000);
@@ -62,5 +73,4 @@
 
     </body>
 
-    <!-- Current session: {{session}} -->
 </html>

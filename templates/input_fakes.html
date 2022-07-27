@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+    
+{% block title %}Ввод обманок{% endblock %}
+    
+{% block content %}
+
+<form action="{{ url_for('submit_fakes', htmlform='true') }}" method="post">
+    <div class="row mb-3">
+        <button type="submit" class="btn btn-success">Отправить все</button>
+    </div>
+    {% for word_id, word_text in words_list %}
+    <div class="row mb-3">
+        <label for="fake-input-{{word_id}}" class="input-group-text">Обманка для слова <span class="color-danger">{{word_text}}</span>:</label>
+        <textarea id="fake-input-{{word_id}}" class="form-control" rows="3" placeholder="Обманка для слова {{word_text}}">{{team.memory[word_id]}}</textarea>
+    </div>
+    {% endfor %}
+    <div class="row mb-3">
+        <button type="submit" class="btn btn-success">Отправить все</button>
+    </div>
+</form>
+{% endblock %}

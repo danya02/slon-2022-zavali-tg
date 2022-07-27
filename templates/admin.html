@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Админка 2022{% endblock %}
+
+{% block content %}
+
+<div class="row mb-3">
+    <div class="input-group mb-3">
+        <label for="current-round" class="input-group-text">ID текущего раунда</label>
+        <input autocomplete="off" type="text" class="form-control" id="current-round" value="{{g.game.current_round}}">
+        <button class="btn btn-outline-success" onclick="$.post(`{{url_for('admin_set_round')}}`, {round: $('#current-round').val()}, function(data) {$('#current-round').val(data);}); return false;">Сохранить</button>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="input-group mb-3">
+        <label for="current-round" class="input-group-text">Индекс (с 0) текущего слова</label>
+        <input autocomplete="off" type="text" class="form-control" id="current-word" value="{{g.game.current_word}}">
+        <button class="btn btn-outline-success" onclick="$.post(`{{url_for('admin_set_word')}}`, {round: $('#current-word').val()}).always(function(data) {$('#current-word').val(data.responseText); console.log(data.responseText);}); return false;">Сохранить</button>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <p>Команды:</p>
+    <div id="teams-list" class="border border-secondary rounded p-2">
+        <p>...загружается...</p>
+    </div>
+    <button class="btn btn-outline-primary" onclick="refreshList(); return false;">Обновить список</button> 
+    <script>
+        function refreshList(){
+            $.get(`{{url_for('admin_get_teams_list')}}`, function(data) {
+                $('#teams-list').html(data);
+            });
+        }
+        refreshList();
+
+        function deleteTeam(team_id) {
+            $.post(`{{url_for('admin_delete_team')}}`, {team_id: team_id}, function(data) {
+                refreshList();
+            });
+        }
+    </script>
+</div>
+
+<div class="row mb-3">
+    <p>Фаза игры:</p>
+    <div class="input-group">
+        <input type="radio" class="btn-check" name="phase" id="phase-waiting" value="waiting" {% if g.game.phase == 'waiting' %}checked{% endif %}><label class="btn btn-outline-primary" for="phase-waiting">Ожидание</label>
+        <input type="radio" class="btn-check" name="phase" id="phase-write-fake" value="write-fake" {% if g.game.phase == 'write-fake' %}checked{% endif %}><label class="btn btn-outline-primary" for="phase-write-fake">Пишем обманки</label>
+        <input type="radio" class="btn-check" name="phase" id="phase-guess-fake-for-word" value="guess-fake-for-word" {% if g.game.phase == 'guess-fake-for-word' %}checked{% endif %}><label class="btn btn-outline-primary" for="phase-guess-fake-for-word">Угадываем чужие обманки</label>
+        <input type="radio" class="btn-check" name="phase" id="phase-results" value="results" {% if g.game.phase == 'results' %}checked{% endif %}><label class="btn btn-outline-primary" for="phase-results">Смотрим результаты</label>
+    </div>
+    <button class="btn btn-outline-primary" onclick="$.post(`{{url_for('admin_set_game_phase')}}`, {phase: $('input[name=phase]:checked').val()}, function(data) {$('#game_phase').text(data)}); return false;">Сохранить</button>
+    <p>Текущая фаза игры: <span id="game_phase">{{g.game.phase}}</span></p>
+</div>
+
+
+{% endblock %}

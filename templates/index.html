@@ -4,6 +4,20 @@
 
 {% block content %}
 
-Hello World!
+{% if not g.team %}
+    <div class="row">
+        <h3>Создать команду</h3>
+        <form action="{{url_for('create_team')}}" method="POST">
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="team-name">Название команды</label>
+                <input type="text" class="form-control" id="team-name" name="team-name" placeholder="Название команды">
+                <button class="btn btn-outline-success" type="submit">Создать</button>
+            </div>
+        </form>
+    </div>
+{% else %}
+<h3>{{g.team.name}}</h3>
+<p class="lead">Ожидайте сообщений от организаторов. Ваш браузер автоматически перейдет на нужные страницы в правильное время.</p>
+{% endif %}
 
 {% endblock %}
