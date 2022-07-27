@@ -1,0 +1,19 @@
+{% for team in g.database.Team.select() %}
+<p>
+    <span class="text-muted">Команда</span>
+    <span class="fst-italic">{{team.name}}</span>
+
+    {% if not team.memory[g.game.current_round + '-' + g.str(g.game.current_word_index) + '-guess'] %}
+        <span class="text-muted">не выбрала определение</span>
+    {% elif team.memory[g.game.current_round + '-' + g.str(g.game.current_word_index) + '-guess'] == 'truth' %}
+        <span class="text-success">угадала правильное определение</span>
+    {% else %}
+        <span style="color:  #a0212d;">попалась на обманку команды</span>
+        <span class="fst-italic">
+            {{g.database.Team.get_or_none(
+                id=team.memory[g.game.current_round + '-' + g.str(g.game.current_word_index) + '-guess'].split('-')[1]
+            ).name}}
+        </span>
+    {% endif %}
+</p>
+{% endfor %}

@@ -54,5 +54,43 @@
     <p>Текущая фаза игры: <span id="game_phase">{{g.game.phase}}</span></p>
 </div>
 
+<div class="row mb-3">
+    <p>Выбранные обманки:</p>
+    <div id="fake-list" class="border border-secondary rounded p-2">
+        <p>...загружается...</p>
+    </div>
+    <button class="btn btn-outline-primary" onclick="refreshFakes(); return false;">Обновить список</button>
+    <script>
+        function refreshFakes(){
+            $.get(`{{url_for('admin_get_fakes_list')}}`, function(data) {
+                $('#fake-list').html(data);
+            });
+        }
+        refreshFakes();
+    </script>
+</div>
+
+<div class="row mb-3">
+    <p>Отправленные обманки:</p>
+    <div id="fake-sent-list" class="border border-secondary rounded p-2">
+        <p>...загружается...</p>
+    </div>
+    <button class="btn btn-outline-primary" onclick="refreshFakesSent(); return false;">Обновить список</button>
+    <script>
+        function refreshFakesSent(){
+            $.get(`{{url_for('admin_get_submitted_fakes_list')}}`, function(data) {
+                $('#fake-sent-list').html(data);
+            });
+        }
+        refreshFakesSent();
+
+        function purgeFake(team_id, fake_id){
+            $.post(`{{url_for('admin_purge_fake')}}`, {team_id: team_id, fake_id: fake_id}, function(data) {
+                refreshFakesSent();
+            });
+        }
+    </script>
+</div>
+
 
 {% endblock %}

@@ -4,6 +4,8 @@
     
 {% block content %}
 
+<h2>{{round['name']}}</h2>
+
 <form action="{{ url_for('submit_fakes', htmlform='true') }}" method="post">
     <div class="row mb-3">
         <button type="submit" class="btn btn-success">Отправить все</button>
@@ -12,9 +14,9 @@
     <div class="row mb-3">
         <label for="fake-input-{{word_id}}" class="input-group-text">Обманка для слова &nbsp;<span class="text-danger">{{word_text}}</span>:</label>
         <textarea autocomplete=off
-        id="{{round_id}}-{{word_id}}-fake" name="{{round_id}}-{{word_id}}-fake"
+        id="{{g.game.current_round}}-{{word_id}}-fake" name="{{g.game.current_round}}-{{word_id}}-fake"
         class="form-control" rows="3"
-        placeholder="Обманка для слова {{word_text}}">{{g.team.memory[str(round_id) + '-' + str(word_id) + '-fake']}}</textarea>
+        placeholder="Обманка для слова {{word_text}}">{{g.team.memory[str(g.game.current_round) + '-' + str(word_id) + '-fake']}}</textarea>
     </div>
     {% endfor %}
     <div class="row mb-3">

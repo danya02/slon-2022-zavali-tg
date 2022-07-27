@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты для слова {{word}}{% endblock %}
+
+{% block content %}
+<p class="lead">Для слова&#160;<span class="text-danger">{{word}}</span>:</p>
+
+<div class="fs-4">
+    {% include "results-text.html" %}
+</div>
+
+<div>
+    <p class="text-success">Правильный ответ:</p>
+    <p class="text-success fst-italic">{{word}}: {{correct_answer}}</p>
+
+    {% for fake_team, fake_content in fakes %}
+    <p><span>{{fake_team}}</span>: {{fake_content}}</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extraFooter %}
+<script>
+    const pagePhase = 'results';
+</script>
+{% endblock %}

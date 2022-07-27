@@ -4,9 +4,10 @@ import os
 import re
 from werkzeug import serving
 from database import *
+import database
 import random
 
-DO_SHUFFLE = False
+DO_SHUFFLE = True
 
 app = Flask(__name__)
 if not os.path.isfile('secret.bin'):
@@ -40,6 +41,8 @@ def get_team():
 def before_request():
     g.team = get_team()
     g.game = get_game_state()
+    g.str = str
+    g.database = database
 
 @app.route('/')
 def index():
@@ -67,8 +70,8 @@ def fake_form():
     round = g.game.current_round
     words = []
     data = get_words()
-    round = data[round]['words']
-    for index, word in enumerate(round):
+    round = data[round]
+    for index, word in enumerate(round['words']):
         words.append((index, word['text']))
     return render_template('input_fakes.html', words_list=words, round=round, str=str)
 
@@ -160,6 +163,26 @@ def submit_guess():
         return 'ok'
 
 
+
+
+@app.route('/results')
+def results_page():
+    if g.game.phase != 'results': return redirect(url_for('index'))
+    if g.team is None: return 'Вы не в команде, <a href="/">нужно создать ее</a>'
+    data = get_words()
+    round = data[g.game.current_round]['words']
+    word = round[g.game.current_word_index]['text']
+    correct_answer = round[g.game.current_word_index]['definition']
+    fakes = []
+    for team in Team.select():
+        fakes.append( (team.name, team.memory.get(f'{g.game.current_round}-{g.game.current_word_index}-fake', "(обманка не отправлена)")) )
+
+    return render_template('results-page.html', word=word, correct_answer=correct_answer, fakes=fakes)
+
+
+
+
+
 @app.route('/admin')
 def admin():
     if request.remote_addr != '127.0.0.1':
@@ -184,22 +207,23 @@ def admin_set_word():
         word = request.form['word']
         word = int(word)
         if word < 0 or word > len(get_words()[game.current_round]['words']):
-            return str(game.current_word_index or ''), 400
+            return str(game.current_word_index), 400
         game.current_word_index = word
         game.save()
-        return str(game.current_word_index or '')
+        return str(game.current_word_index)
     except:
-        return str(game.current_word_index or ''), 400
+        return str(game.current_word_index), 400
 
 @app.route('/admin/get-teams-list')
 def admin_get_teams_list():
     if request.remote_addr != '127.0.0.1':
         return 'Доступ запрещен.', 403
-    answer = ''
+    answer = '<ul class="list-unstyled">'
     for team in Team.select():
         answer += f'<li>{team.id}: {team.name} ({team.memory})'
-        answer += f'<button class="btn btn-danger" onclick="deleteTeam({team.id})">Удалить</button>'
+        answer += f'<button class="btn btn-danger m-2" onclick="deleteTeam({team.id})">Удалить</button>'
         answer += '</li>'
+    answer += '</ul>'
     return answer
 
 @app.route('/admin/delete-team', methods=['POST'])
@@ -220,3 +244,42 @@ def admin_set_game_phase():
     game.phase = request.form['phase']
     game.save()
     return jsonify(game.phase)
+
+@app.route('/admin/get-fakes-list')
+def admin_get_fakes_list():
+    if request.remote_addr != '127.0.0.1':
+        return 'Доступ запрещен.', 403
+    return render_template('results-text.html')
+
+@app.route('/admin/get-fake-submissions-list')
+def admin_get_submitted_fakes_list():
+    if request.remote_addr != '127.0.0.1':
+        return 'Доступ запрещен.', 403
+    
+    data = get_words()
+    round = data[g.game.current_round]['words']
+    word = round[g.game.current_word_index]['text']
+    answer = f'<p>Fakes for word {word}:</p>'
+
+    answer += '<ul class="list-unstyled">'
+    
+
+    for team in Team.select():
+        their_fake = team.memory.get(f'{g.game.current_round}-{g.game.current_word_index}-fake', '(no fake submitted)')
+        answer += f'<li>{team.id}. {team.name}: {their_fake}'
+        answer += f'<button class="btn btn-danger m-2" onclick="purgeFake({team.id}, `{g.game.current_round}-{g.game.current_word_index}-fake`)">Очистить</button>'
+        answer += '</li>'
+
+    answer += '</ul>'
+    return answer
+
+@app.route('/admin/purge-fake', methods=['POST'])
+def admin_purge_fake():
+    if request.remote_addr != '127.0.0.1':
+        return 'Доступ запрещен.', 403
+    team = Team.get_or_none(Team.id == request.form['team_id'])
+    if not team:
+        return 'Команда не найдена.', 404
+    team.memory[f'{g.game.current_round}-{g.game.current_word_index}-fake'] = '(обманка стерта администратором)'
+    team.save()
+    return 'ok'
