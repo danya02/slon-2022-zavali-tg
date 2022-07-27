@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Отгадываем слово {{word}}{% endblock %}
+
+{% block content %}
+
+<p class="lead">Угадайте, что значит слово&nbsp;<span class="text-danger">{{word}}</span>:</p>
+
+<form action="{{url_for('submit_guess', htmlform='true')}}" method="POST">
+    <div class="row mb-3">
+        <button type="submit" class="btn btn-success">Отправить</button>
+    </div>
+    {% for fake_id, fake in fakes %}
+    <div class="input-group mb-3">
+        <div class="input-group-text">
+            <input autocomplete=off type="radio" name="guess" value="{{fake_id}}" class="form-check-input mt-0" id="guess-{{fake_id}}" {% if answers[fake_id] == their_answer %}checked{%endif%}>
+        </div>
+        <label for="guess-{{fake_id}}" class="input-group-text">{{fake}}</label>
+    </div>
+    {% endfor %}
+    <div class="row mb-3">
+        <button type="submit" class="btn btn-success">Отправить</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extraFooter %}
+<script>
+    const pagePhase = 'guess-fake-for-word';
+</script>
+{% endblock %}
+    

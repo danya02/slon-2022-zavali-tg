@@ -48,9 +48,46 @@
         </div>
 
         <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+
+        {% block extraFooter %}{% endblock %}
+
+
         <script>
 
+            var round = null;
+            var word = null;
+
             function processEvents(data){
+                if(pagePhase){
+                    if(data.phase != pagePhase){
+                        switch(data.phase){
+                            case 'waiting':
+                                window.location.href = '/';
+                                break;
+                            case 'write-fake':
+                                window.location.href = '/fakes';
+                                break;
+                            case 'guess-fake-for-word':
+                                window.location.href = '/guess';
+                                break;
+                            case 'results':
+                                window.location.href = '/results';
+                                break;
+                        }
+                    }
+                }
+                if(round === null || word === null){
+                    round = data.current_round;
+                    word = data.current_word_index;
+                    console.log(data);
+                } else {
+                    if(round != data.current_round){
+                        window.location.reload(true);
+                    }
+                    if(word != data.current_word_index){
+                        window.location.reload(true);
+                    }
+                }
             }
     
             function doPoll(){
@@ -66,10 +103,10 @@
                 });
             }
             doPoll();
+            setInterval(doPoll, 5000);
 
         </script>
 
-        {% block extraFooter %}{% endblock %}
 
     </body>
 

@@ -16,7 +16,7 @@
     <div class="input-group mb-3">
         <label for="current-round" class="input-group-text">Индекс (с 0) текущего слова</label>
         <input autocomplete="off" type="text" class="form-control" id="current-word" value="{{g.game.current_word}}">
-        <button class="btn btn-outline-success" onclick="$.post(`{{url_for('admin_set_word')}}`, {round: $('#current-word').val()}).always(function(data) {$('#current-word').val(data.responseText); console.log(data.responseText);}); return false;">Сохранить</button>
+        <button class="btn btn-outline-success" onclick="$.post(`{{url_for('admin_set_word')}}`, {word: $('#current-word').val()}, function(data) {$('#current-word').val(data); console.log(data);} ).fail(function(data) {$('#current-word').val(data.responseText); console.log(data);}); return false;">Сохранить</button>
     </div>
 </div>
 
